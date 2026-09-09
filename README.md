@@ -24,7 +24,6 @@ O **Valor Total do Pedido** é determinado na classe `Pedido` somando o preço d
 $$\text{Valor Total} = \text{Preço do Produto} + \text{Valor do Frete}$$
 
 Fórmula executada no método `calcularValorTotal()`:
-```java
 return this.preco + this.modalidadeEntrega.calcularFrete(this.pesoTotal);
 
 ### 3. Comparação das Entregas
