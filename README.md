@@ -1,59 +1,55 @@
-# 📦 Sistema de Pedidos e Entregas
+# 📦 Sistema de Gestão de Pedidos e Entregas
 
-Aplicação orientada a objetos desenvolvida em Java para gestão de pedidos, cálculo de custos e acompanhamento de diferentes modalidades de entrega.
+Aplicação orientada a objetos desenvolvida em Java para gestão de pedidos, cálculo dinâmico de fretes e acompanhamento de modalidades de entrega.
 
 ---
 
-## 📄 Documentação
+## 📄 Documentação do Projeto
 
 ### 1. Regras de Cada Modalidade
 
 O sistema oferece quatro modalidades distintas de recebimento:
 
-* **Entrega Normal:** Modalidade padrão com cálculo de frete baseado na distância/peso e prazo regular de envio.
-* **Entrega Expressa:** Modalidade prioritária. Possui taxa adicional sobre o valor base do frete e reduz significativamente o prazo de entrega.
-* **Entrega Agendada:** Permite ao cliente escolher uma data e janela de horário específicas para a entrega, aplicando uma taxa fixa de agendamento.
-* **Retirada na Loja:** Isenta o cliente do custo de frete (valor R$ 0,00) e disponibiliza um ponto fixo de coleta após o processamento do pedido.
+* **Entrega Normal:** Cobra um valor base de R$ 5,00 por quilo do pacote e entrega no prazo padrão.
+* **Entrega Expressa:** Modalidade prioritária. Cobra uma taxa fixa de R$ 15,00 somada a R$ 8,00 por quilo para reduzir o prazo de envio.
+* **Entrega Agendada:** Permite ao cliente escolher uma data para a entrega. Aplica uma taxa fixa de R$ 15,00 somada a R$ 6,00 por quilo e impede o agendamento em datas anteriores ao dia atual.
+* **Retirada na Loja:** Isenta o cliente do custo de frete (R$ 0,00) para coleta em ponto fixo.
 
 ---
 
 ### 2. Cálculo do Valor Total
 
-O **Valor Total do Pedido** é determinado pela soma do valor dos itens cadastrados no pedido com o valor final do frete calculado pela modalidade escolhida:
+O **Valor Total do Pedido** é determinado na classe `Pedido` somando o preço do produto com o custo do frete calculado dinamicamente pela modalidade associada:
 
-$$\text{Valor Total} = \text{Valor dos Itens} + \text{Valor do Frete}$$
+$$\text{Valor Total} = \text{Preço do Produto} + \text{Valor do Frete}$$
 
-* **Normal:** Frete Base.
-* **Expressa:** Frete Base + Adicional de Urgência.
-* **Agendada:** Frete Base + Taxa de Agendamento.
-* **Retirada na Loja:** Frete = R$ 0,00.
-
----
+Fórmula executada no método `calcularValorTotal()`:
+```java
+return this.preco + this.modalidadeEntrega.calcularFrete(this.pesoTotal);
 
 ### 3. Comparação das Entregas
 
-| Modalidade | Custo do Frete | Prazo de Entrega | Diferencial |
-| :--- | :--- | :--- | :--- |
-| **Normal** | Padrão | Regular | Custo-benefício equilibrado |
-| **Expressa** | Elevado (Taxa extra) | Curto / Prioritário | Rapidez na entrega |
-| **Agendada** | Padrão + Taxa fixa | Data/Horário definidos | Conveniência para o cliente |
-| **Retirada na Loja** | Isento (R$ 0,00) | Conforme disponibilidade | Sem custo de frete |
+| Modalidade | Taxa Fixa | Custo por kg | Validação de Data | Diferencial |
+| :--- | :--- | :--- | :--- | :--- |
+| **Normal** | R$ 0,00 | R$ 5,00 | Não exige | Custo-benefício equilibrado |
+| **Expressa** | R$ 15,00 | R$ 8,00 | Não exige | Maior rapidez na entrega |
+| **Agendada** | R$ 15,00 | R$ 6,00 | Exige data ≥ dia atual | Escolha da data de recebimento |
+| **Retirada na Loja** | R$ 0,00 | R$ 0,00 | Não exige | Frete grátis |
 
 ---
 
 ### 4. Composição entre Pedido e Entrega
 
-A arquitetura utiliza o conceito de **Composição (ou Agregação)** da POO:
-* A classe `Pedido` possui uma referência/atributo do tipo `Entrega`.
-* Em vez do `Pedido` calcular o frete diretamente, ele **delega** essa responsabilidade para o objeto `Entrega` associado a ele.
-* Isso permite mudar a modalidade de entrega de um pedido de forma flexível e descolada da estrutura central do pedido.
+A arquitetura utiliza o conceito de **Composição (Associação)** e o padrão **Strategy**:
+* A classe `Pedido` contém um atributo/referência do tipo base `Entrega`.
+* Em vez de o `Pedido` calcular o frete diretamente, ele **delega** essa responsabilidade para a instância de `Entrega` associada.
+* Isso permite alterar a modalidade de entrega sem modificar a estrutura central da classe `Pedido`.
 
 ---
 
 ### 5. Aplicação dos Pilares da POO
 
-* **Abstração:** A classe abstrata (ou interface) `Entrega` define o contrato geral do que toda entrega deve ter (como o método de calcular frete), escondendo detalhes complexos da regra de negócio central.
-* **Herança:** As classes filhas (`EntregaNormal`, `EntregaExpressa`, `EntregaAgendada`, `RetiradaNaLoja`) herdam os atributos e métodos comuns da classe base `Entrega`.
-* **Encapsulamento:** Os atributos das classes são mantidos como `private` e manipulados com segurança via métodos *getters* e *setters* ou construtores, protegendo os dados contra alterações indevidas.
-* **Polimorfismo:** O método de cálculo do frete é sobrescrito (`@Override`) em cada classe filha, permitindo que o `Pedido` execute o cálculo correto dinamicamente.
-
+* **Abstração:** Representada pela classe abstrata `Entrega`, que define o contrato com as assinaturas de `calcularFrete` e `calcularPrazo`, ocultando as particularidades de cada conta.
+* **Herança:** As subclasses (`EntregaNormal`, `EntregaExpressa`, `EntregaAgendada` e `RetiradaNaLoja`) herdam os atributos e comportamentos da classe pai `Entrega` (como o `destino`).
+* **Encapsulamento:** Os atributos (`preco`, `pesoTotal`, `destino`, `dataAgendada`) são mantidos como `private`, garantindo o acesso seguro via construtores e métodos seletores.
+* **Polimorfismo:** O método `calcularFrete` é sobrescrito (`@Override`) em cada classe filha, permitindo que a classe `Pedido` execute o cálculo correto em tempo de execução.
