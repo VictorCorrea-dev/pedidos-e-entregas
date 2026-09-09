@@ -57,15 +57,3 @@ A arquitetura utiliza o conceito de **Composição (ou Agregação)** da POO:
 * **Encapsulamento:** Os atributos das classes são mantidos como `private` e manipulados com segurança via métodos *getters* e *setters* ou construtores, protegendo os dados contra alterações indevidas.
 * **Polimorfismo:** O método de cálculo do frete é sobrescrito (`@Override`) em cada classe filha, permitindo que o `Pedido` execute o cálculo correto dinamicamente.
 
----
-
-### 6. Instruções para Execução
-
-#### Pré-requisitos
-* **Java Development Kit (JDK):** Versão 11 ou superior instalada.
-
-#### Passo a Passo
-
-1. **Clonar o repositório:**
-   ```bash
-   git clone [https://github.com/VictorCorrea-dev/sistema_pedidos_e_entregas.git](https://github.com/VictorCorrea-dev/sistema_pedidos_e_entregas.git)
